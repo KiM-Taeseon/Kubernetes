@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aws9deploy
+spec:
+  strategy: 
+    type: Recreate
+  replicas: 10
+  selector: 
+    matchLabels:
+      app: web    # (1) Pod 작성시 이 부분(label -> app: web)이 포함되어야 한다.
+  template:     # 여기서부터 Pod 작성 
+    metadata:
+      labels: 
+        app: web   # 반드시 (1)과 동일해야함.
+    spec: 
+      containers:
+        - name: aws9ctn
+          image: taeseonkim/aws9:green
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: aws9-svc
+spec:
+  type: NodePort
+  ports:
+  - name:  aws9-port
+    port:  8080     # cluster-ip의 포트 번호
+    protocol: TCP
+    targetPort: 80  # 컨테이너의 포트 번호
+    nodePort: 30080 # 노드의 포트 번호
+  selector: 
+    app: web    # Pod의 label을 지정해 주어야 한다!!

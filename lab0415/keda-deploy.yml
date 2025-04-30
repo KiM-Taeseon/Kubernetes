@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample-app
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sample-app
+  template:
+    metadata:
+      labels:
+        app: sample-app
+    spec:
+      containers:
+      - name: sample-app
+        image: nginx
+        resources:
+          requests:
+            cpu: "100m"
+          limits:
+            cpu: "200m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keda-service-lb
+  namespace: default
+spec: 
+  selector:     # 이 lb 로 접속하면 아래의 label이 있는 pod 로 포워딩 됌.
+    app: sample-app
+  type: LoadBalancer
+  ports:  
+    - name: keda-service-port
+      protocol: TCP
+      port: 80
+      targetPort: 80
+

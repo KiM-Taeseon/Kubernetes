@@ -1,0 +1,75 @@
+# shop svc
+---
+apiVersion: v1
+kind: Service
+metadata: 
+  name: aws9-svc-shop
+  namespace: default    # default라면 안써도 무방!
+spec:
+  type: ClusterIP   # LB나 nodePort가 아니라면 안써도 무방!
+  selector:
+    app: aws9-blue
+  ports:
+    - port: 80
+      targetPort: 80
+
+# shop deploy
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aws9-blue
+  namespace: default
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: aws9-blue
+  template:
+    metadata:
+      labels:
+        app: aws9-blue
+    spec:
+      containers:
+        - name: shop-container
+          image: taeseonkim/aws9:blue
+          ports:
+            - containerPort: 80
+
+# blog svc
+---
+apiVersion: v1
+kind: Service
+metadata: 
+  name: aws9-svc-blog
+  namespace: default
+spec:
+  type: ClusterIP
+  selector:
+    app: aws9-green
+  ports:
+    - port: 80
+      targetPort: 80
+
+# blog deploy
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aws9-green
+  namespace: default
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: aws9-green
+  template:
+    metadata:
+      labels:
+        app: aws9-green
+    spec:
+      containers:
+        - name: blog-container
+          image: taeseonkim/aws9:green
+          ports:
+            - containerPort: 80
